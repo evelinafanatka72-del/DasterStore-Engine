@@ -1,4 +1,5 @@
-name: "DasterStore Build"
+name: "DasterStore Build v1.0.0"
+
 on:
   push:
     branches: [ "main" ]
@@ -9,22 +10,22 @@ jobs:
   export_game:
     runs-on: ubuntu-latest
     permissions: write-all
-    name: Export Game to APK and EXE
+    name: Export DasterStore
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Godot Export
+      - name: Godot Export (APK & EXE)
         uses: firebelley/godot-export@v5.2.1
         with:
-          # Укажи версию, на которой ты делаешь DasterStore
-          godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/4.2.1/Godot_v4.2.1-stable_linux.x86_64.zip
-          godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/4.2.1/Godot_v4.2.1-stable_export_templates.tpz
+          # Используем стабильную версию Godot 4.3
+          godot_executable_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
+          godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
           relative_project_path: ./
           archive_output: true
 
-      - name: Upload Artifacts
+      - name: Save Version 1.0.0 Files
         uses: actions/upload-artifact@v4
         with:
-          name: DasterStore-Builds
+          name: DasterStore-v1.0.0-Builds
           path: /home/runner/.local/share/godot/builds/
