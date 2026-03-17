@@ -1,0 +1,25 @@
+name: "DasterStore Build"
+on: 
+  push:
+    branches: [ "main" ]
+
+jobs:
+  export_game:
+    runs-on: ubuntu-latest
+    name: Export Game to APK and EXE
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Godot
+        run: |
+          sudo apt-get update && sudo apt-get install -y wget zip
+          URL="https://github.com"
+          URL="$URL/download/4.2.1-stable/Godot_v4.2.1-stable_linux.x86_64.zip"
+          wget $URL
+          unzip Godot_v4.2.1-stable_linux.x86_64.zip
+          sudo mv Godot_v4.2.1-stable_linux.x86_64 /usr/local/bin/godot
+          sudo chmod +x /usr/local/bin/godot
+
+      - name: Check Godot
+        run: godot --version
