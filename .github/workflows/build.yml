@@ -12,6 +12,8 @@ jobs:
           mkdir -p .godot/editor
           mkdir -p builds/windows
           chmod -R 777 .
+          # Эта магия ниже удаляет пресет Android из конфига, чтобы Godot его не видел
+          sed -i '/name="Android"/,/^$/d' export_presets.cfg
 
       - name: Godot Export
         uses: firebelley/godot-export@v5.2.1
@@ -20,13 +22,11 @@ jobs:
           godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
           relative_project_path: ./
           archive_output: true
-          # Явно указываем пресет, который точно должен работать
-          export_debug: false
           use_preset_export_path: false
-          preset: "Windows Desktop"
+          export_debug: false
       
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: DasterStore-Windows
+          name: DasterStore-Windows-Build
           path: .github/outputs/
