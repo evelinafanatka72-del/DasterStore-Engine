@@ -7,6 +7,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Даем права на запись, чтобы Godot мог создать кэш
+      - name: Fix permissions
+        run: chmod -R 777 .
+
       - name: Godot Export
         uses: firebelley/godot-export@v5.2.1
         with:
@@ -19,4 +23,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: DasterStore-Build
-          path: builds/
+          path: .github/outputs/
