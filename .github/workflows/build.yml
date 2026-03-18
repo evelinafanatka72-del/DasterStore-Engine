@@ -7,9 +7,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Даем права на запись, чтобы Godot мог создать кэш
-      - name: Fix permissions
-        run: chmod -R 777 .
+      # Принудительно создаем папку для кэша и даем права
+      - name: Prepare environment
+        run: |
+          mkdir -p .godot/editor
+          chmod -R 777 .
 
       - name: Godot Export
         uses: firebelley/godot-export@v5.2.1
