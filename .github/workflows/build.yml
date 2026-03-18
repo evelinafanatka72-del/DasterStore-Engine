@@ -11,29 +11,36 @@ jobs:
         run: |
           mkdir -p ~/.local/bin
           mkdir -p ~/.local/share/godot/export_templates/4.3.stable
-          # Скачиваем движок
           wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
           unzip -q Godot_v4.3-stable_linux.x86_64.zip
           mv Godot_v4.3-stable_linux.x86_64 ~/.local/bin/godot
           chmod +x ~/.local/bin/godot
           
-          # Скачиваем шаблоны экспорта
           wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
           unzip -q Godot_v4.3-stable_export_templates.tpz -d ~/.local/share/godot/export_templates/4.3.stable
           mv ~/.local/share/godot/export_templates/4.3.stable/templates/* ~/.local/share/godot/export_templates/4.3.stable/
 
-      - name: Fix Export Config & Prepare
+      - name: Fix Config & Permissions
         run: |
+          # Создаем структуру папок заранее
+          mkdir -p .godot/editor
           mkdir -p builds/windows
-          # Исправляем конфиг: заменяем 'selected_files' на 'all_resources', чтобы не было ошибки пустого экспорта
+          # Исправляем конфиг
           if [ -f export_presets.cfg ]; then
             sed -i 's/export_filter="selected_files"/export_filter="all_resources"/g' export_presets.cfg
-            # Также отключаем модификацию ресурсов (иконки), чтобы не ругался rcedit
             sed -i 's/application\/modify_resources=true/application\/modify_resources=false/g' export_presets.cfg
           fi
+          # Даем права всем на всё в этой папке
+          chmod -R 777 .
+
+      - name: Import Assets
+        run: |
+          # Первый запуск для генерации .godot/ кэша
+          ~/.local/bin/godot --headless --path . -e --quit --import || true
 
       - name: Windows Export
         run: |
+          # Теперь сам экспорт
           ~/.local/bin/godot --headless --path . --export-release "Windows Desktop" builds/windows/DasterStore.exe
 
       - name: Upload Artifacts
