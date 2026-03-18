@@ -7,10 +7,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Принудительно создаем папку для кэша и даем права
       - name: Prepare environment
         run: |
           mkdir -p .godot/editor
+          mkdir -p builds/windows
           chmod -R 777 .
 
       - name: Godot Export
@@ -24,5 +24,5 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: DasterStore-Build
-          path: .github/outputs/
+          name: DasterStore-Windows-Build
+          path: builds/
