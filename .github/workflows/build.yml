@@ -1,17 +1,22 @@
 name: build
-on: [push, pull_request]
+on: [push]
 jobs:
   export:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: firebelley/godot-export@v5.2.1
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Web Export
+        uses: firebelley/godot-export@v5.2.1
         with:
           godot_executable_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
           godot_export_templates_download_url: https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
           relative_project_path: ./
           archive_output: true
-      - uses: actions/upload-artifact@v4
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
         with:
           name: DasterStore-Files
-          path: /home/runner/.local/share/godot/builds/
+          path: ./.github/outputs
