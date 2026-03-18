@@ -20,27 +20,51 @@ jobs:
           unzip -q Godot_v4.3-stable_export_templates.tpz -d ~/.local/share/godot/export_templates/4.3.stable
           mv ~/.local/share/godot/export_templates/4.3.stable/templates/* ~/.local/share/godot/export_templates/4.3.stable/
 
-      - name: Fix Config & Permissions
+      - name: Force Create Export Preset
         run: |
-          # Создаем структуру папок заранее
-          mkdir -p .godot/editor
           mkdir -p builds/windows
-          # Исправляем конфиг
-          if [ -f export_presets.cfg ]; then
-            sed -i 's/export_filter="selected_files"/export_filter="all_resources"/g' export_presets.cfg
-            sed -i 's/application\/modify_resources=true/application\/modify_resources=false/g' export_presets.cfg
-          fi
-          # Даем права всем на всё в этой папке
-          chmod -R 777 .
+          # Мы полностью перезаписываем файл настроек, чтобы исключить любые ошибки
+          cat <<EOF > export_presets.cfg
+          [preset.0]
+          name="Windows Desktop"
+          platform="Windows Desktop"
+          runnable=true
+          dedicated_server=false
+          custom_features=""
+          export_filter="all_resources"
+          include_filter=""
+          exclude_filter=""
+          export_path="builds/windows/DasterStore.exe"
+          encryption_include_filters=""
+          encryption_exclude_filters=""
+          encrypt_pck=false
+          encrypt_directory=false
 
-      - name: Import Assets
+          [preset.0.options]
+          custom_template/debug=""
+          custom_template/release=""
+          debug/export_console_wrapper=1
+          binary_format/embed_pck=false
+          texture_format/bptc=true
+          texture_format/s3tc=true
+          texture_format/etc2=false
+          application/modify_resources=false
+          application/icon=""
+          application/console_wrapper_icon=""
+          application/file_version=""
+          application/product_version=""
+          application/company_name=""
+          application/product_name=""
+          application/file_description=""
+          application/copyright=""
+          application/trademarks=""
+          ssh_remote_deploy/enabled=false
+          EOF
+
+      - name: Import & Export
         run: |
-          # Первый запуск для генерации .godot/ кэша
+          # Сначала импорт, потом экспорт
           ~/.local/bin/godot --headless --path . -e --quit --import || true
-
-      - name: Windows Export
-        run: |
-          # Теперь сам экспорт
           ~/.local/bin/godot --headless --path . --export-release "Windows Desktop" builds/windows/DasterStore.exe
 
       - name: Upload Artifacts
