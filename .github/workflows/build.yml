@@ -22,32 +22,51 @@ jobs:
       - name: Setup Project
         run: |
           mkdir -p builds/windows
-          chmod -R 777 .
-          # Ensure main scene exists in project.godot to avoid "no main scene" error
-          if ! grep -q "run/main_scene" project.godot; then
-            echo 'run/main_scene="res://main.tscn"' >> project.godot
-          fi
-          # Force export preset
+          # Создаем полный конфиг со всеми обязательными полями
           cat <<EOF > export_presets.cfg
           [preset.0]
           name="Windows Desktop"
           platform="Windows Desktop"
           runnable=true
+          dedicated_server=false
+          custom_features=""
           export_filter="all_resources"
+          include_filter=""
+          exclude_filter=""
           export_path="builds/windows/DasterStore.exe"
+          encryption_include_filters=""
+          encryption_exclude_filters=""
+          encrypt_pck=false
+          encrypt_directory=false
+
           [preset.0.options]
-          application/modify_resources=false
+          custom_template/debug=""
+          custom_template/release=""
+          debug/export_console_wrapper=1
+          binary_format/embed_pck=false
           texture_format/bptc=true
           texture_format/s3tc=true
+          texture_format/etc2=false
+          application/modify_resources=false
+          application/icon=""
+          application/console_wrapper_icon=""
+          application/file_version=""
+          application/product_version=""
+          application/company_name=""
+          application/product_name=""
+          application/file_description=""
+          application/copyright=""
+          application/trademarks=""
+          ssh_remote_deploy/enabled=false
           EOF
 
       - name: Import and Export
         run: |
-          # Create metadata directory and set permissions again
           mkdir -p .godot/editor
           chmod -R 777 .
-          # Run import twice to ensure filesystem cache is built
+          # Импорт ресурсов для создания кэша
           ~/.local/bin/godot --headless --path . --editor --quit || true
+          # Финальная попытка экспорта
           ~/.local/bin/godot --headless --path . --export-release "Windows Desktop" builds/windows/DasterStore.exe
 
       - name: Upload Artifacts
