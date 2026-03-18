@@ -11,20 +11,26 @@ jobs:
         run: |
           mkdir -p ~/.local/bin
           mkdir -p ~/.local/share/godot/export_templates/4.3.stable
-          wget https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
-          unzip Godot_v4.3-stable_linux.x86_64.zip
+          # Скачиваем движок
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
+          unzip -q Godot_v4.3-stable_linux.x86_64.zip
           mv Godot_v4.3-stable_linux.x86_64 ~/.local/bin/godot
           chmod +x ~/.local/bin/godot
           
-          wget https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
-          unzip Godot_v4.3-stable_export_templates.tpz -d ~/.local/share/godot/export_templates/4.3.stable
+          # Скачиваем шаблоны экспорта
+          wget -q https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz
+          unzip -q Godot_v4.3-stable_export_templates.tpz -d ~/.local/share/godot/export_templates/4.3.stable
           mv ~/.local/share/godot/export_templates/4.3.stable/templates/* ~/.local/share/godot/export_templates/4.3.stable/
 
-      - name: Prepare project
+      - name: Fix Export Config & Prepare
         run: |
-          mkdir -p .godot/editor
           mkdir -p builds/windows
-          chmod -R 777 .
+          # Исправляем конфиг: заменяем 'selected_files' на 'all_resources', чтобы не было ошибки пустого экспорта
+          if [ -f export_presets.cfg ]; then
+            sed -i 's/export_filter="selected_files"/export_filter="all_resources"/g' export_presets.cfg
+            # Также отключаем модификацию ресурсов (иконки), чтобы не ругался rcedit
+            sed -i 's/application\/modify_resources=true/application\/modify_resources=false/g' export_presets.cfg
+          fi
 
       - name: Windows Export
         run: |
@@ -33,5 +39,5 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: DasterStore-Windows
+          name: DasterStore-Windows-Build
           path: builds/windows/
